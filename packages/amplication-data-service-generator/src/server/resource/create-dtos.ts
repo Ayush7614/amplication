@@ -1,6 +1,6 @@
 import { namedTypes } from "ast-types";
 import { camelCase } from "camel-case";
-import { Entity, Module } from "../../types";
+import { Entity, Module } from "@amplication/code-gen-types";
 import { NamedClassDeclaration } from "../../util/ast";
 import { getEnumFields } from "../../util/entity";
 import { createEnumName } from "../prisma/create-prisma-schema";
@@ -49,8 +49,8 @@ export type DTOs = {
  * creating all the DTOs files in the base (only the DTOs)
  *
  */
-export function createDTOModules(dtos: DTOs): Module[] {
-  const dtoNameToPath = getDTONameToPath(dtos);
+export function createDTOModules(dtos: DTOs, srcDirectory: string): Module[] {
+  const dtoNameToPath = getDTONameToPath(dtos, srcDirectory);
   return Object.values(dtos).flatMap((entityDTOs) =>
     Object.values(entityDTOs).map((dto) =>
       namedTypes.TSEnumDeclaration.check(dto)
@@ -60,12 +60,15 @@ export function createDTOModules(dtos: DTOs): Module[] {
   );
 }
 
-export function getDTONameToPath(dtos: DTOs): Record<string, string> {
+export function getDTONameToPath(
+  dtos: DTOs,
+  srcDirectory: string
+): Record<string, string> {
   return Object.fromEntries(
     Object.entries(dtos).flatMap(([entityName, entityDTOs]) =>
       Object.values(entityDTOs).map((dto) => [
         dto.id.name,
-        createDTOModulePath(camelCase(entityName), dto.id.name),
+        createDTOModulePath(camelCase(entityName), dto.id.name, srcDirectory),
       ])
     )
   );

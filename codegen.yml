@@ -6,10 +6,13 @@ generates:
   packages/amplication-data-service-generator/src/models.ts:
     plugins:
       - "typescript"
-  packages/amplication-data/src/models.ts:
+  packages/amplication-code-gen-types/src/models.ts:
     plugins:
       - "typescript"
   packages/amplication-cli/src/models.ts:
+    plugins:
+      - "typescript"
+  packages/amplication-git-pull-request-service/src/models.ts:
     plugins:
       - "typescript"
 hooks:

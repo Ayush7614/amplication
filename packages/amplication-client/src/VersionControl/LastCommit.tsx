@@ -143,11 +143,11 @@ export const GET_LAST_COMMIT = gql`
         }
       }
       changes {
-        resourceId
+        originId
         action
-        resourceType
+        originType
         versionNumber
-        resource {
+        origin {
           __typename
           ... on Entity {
             id
@@ -198,19 +198,6 @@ export const GET_LAST_COMMIT = gql`
         }
         status
         archiveURI
-        deployments(orderBy: { createdAt: Desc }, take: 1) {
-          id
-          buildId
-          createdAt
-          status
-          actionId
-          message
-          environment {
-            id
-            name
-            address
-          }
-        }
       }
     }
   }

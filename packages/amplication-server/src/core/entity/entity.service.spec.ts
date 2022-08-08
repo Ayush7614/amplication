@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma, EnumEntityAction } from '@prisma/client';
+import {
+  Prisma,
+  EnumEntityAction,
+  PrismaService
+} from '@amplication/prisma-db';
 import { camelCase } from 'camel-case';
 import { pick, omit } from 'lodash';
 import {
@@ -9,7 +13,6 @@ import {
   EntityService,
   NAME_VALIDATION_ERROR_MESSAGE
 } from './entity.service';
-import { PrismaService } from 'nestjs-prisma';
 import { Entity, EntityVersion, EntityField, User, Commit } from 'src/models';
 import { EnumDataType } from 'src/enums/EnumDataType';
 import { FindManyEntityArgs } from './dto';
@@ -23,7 +26,7 @@ import { DiffModule } from 'src/services/diff.module';
 import { prepareDeletedItemName } from 'src/util/softDelete';
 import {
   EnumPendingChangeAction,
-  EnumPendingChangeResourceType
+  EnumPendingChangeOriginType
 } from '../app/dto';
 import { DiffService } from 'src/services/diff.service';
 import { isReservedName } from './reservedNames';
@@ -104,11 +107,11 @@ const EXAMPLE_CURRENT_ENTITY_VERSION: EntityVersion = {
 };
 
 const EXAMPLE_ENTITY_PENDING_CHANGE_CREATE: EntityPendingChange = {
-  resourceId: EXAMPLE_ENTITY.id,
+  originId: EXAMPLE_ENTITY.id,
   action: EnumPendingChangeAction.Create,
-  resourceType: EnumPendingChangeResourceType.Entity,
+  originType: EnumPendingChangeOriginType.Entity,
   versionNumber: 1,
-  resource: EXAMPLE_ENTITY
+  origin: EXAMPLE_ENTITY
 };
 const EXAMPLE_DELETED_ENTITY = {
   ...EXAMPLE_ENTITY,
@@ -116,18 +119,18 @@ const EXAMPLE_DELETED_ENTITY = {
   deletedAt: new Date()
 };
 const EXAMPLE_ENTITY_PENDING_CHANGE_DELETE: EntityPendingChange = {
-  resourceId: EXAMPLE_ENTITY.id,
+  originId: EXAMPLE_ENTITY.id,
   action: EnumPendingChangeAction.Delete,
-  resourceType: EnumPendingChangeResourceType.Entity,
+  originType: EnumPendingChangeOriginType.Entity,
   versionNumber: 1,
-  resource: EXAMPLE_DELETED_ENTITY
+  origin: EXAMPLE_DELETED_ENTITY
 };
 const EXAMPLE_ENTITY_PENDING_CHANGE_UPDATE: EntityPendingChange = {
-  resourceId: EXAMPLE_ENTITY.id,
+  originId: EXAMPLE_ENTITY.id,
   action: EnumPendingChangeAction.Update,
-  resourceType: EnumPendingChangeResourceType.Entity,
+  originType: EnumPendingChangeOriginType.Entity,
   versionNumber: 1,
-  resource: EXAMPLE_ENTITY
+  origin: EXAMPLE_ENTITY
 };
 
 const EXAMPLE_LAST_ENTITY_VERSION: EntityVersion = {

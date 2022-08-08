@@ -2,15 +2,15 @@ import { Injectable, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import get from 'lodash.get';
+import { get } from 'lodash';
 import { User } from 'src/models';
 import { PermissionsService } from 'src/core/permissions/permissions.service';
-import { AuthorizableResourceParameter } from 'src/enums/AuthorizableResourceParameter';
+import { AuthorizableOriginParameter } from 'src/enums/AuthorizableOriginParameter';
 
 export const AUTHORIZE_CONTEXT = 'authorizeContext';
 
 export type AuthorizeContextParameters = {
-  parameterType: AuthorizableResourceParameter;
+  parameterType: AuthorizableOriginParameter;
   parameterPath: string;
 };
 

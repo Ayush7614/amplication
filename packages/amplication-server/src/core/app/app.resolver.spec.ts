@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PrismaService } from 'nestjs-prisma';
+import { PrismaService } from '@amplication/prisma-db';
 import { BuildService } from '../build/build.service';
 import { EntityService } from '../entity/entity.service';
 import { EnvironmentService } from '../environment/environment.service';
@@ -24,8 +24,8 @@ import { Commit } from 'src/models/Commit';
 import { PendingChange } from './dto/PendingChange';
 import {
   EnumPendingChangeAction,
-  EnumPendingChangeResourceType
-} from '@amplication/data/dist/models';
+  EnumPendingChangeOriginType
+} from '@amplication/code-gen-types/dist/models';
 import { mockGqlAuthGuardCanActivate } from '../../../test/gql-auth-mock';
 import { UserService } from '../user/user.service';
 
@@ -48,7 +48,7 @@ const EXAMPLE_MESSAGE = 'exampleMessage';
 
 const EXAMPLE_ENTITY_ID = 'exampleEntityId';
 
-const EXAMPLE_RESOURCE_ID = 'exampleResourceId';
+const EXAMPLE_ORIGIN_ID = 'exampleOriginId';
 const EXAMPLE_VERSION_NUMBER = 1;
 
 const EXAMPLE_COMMIT: Commit = {
@@ -100,9 +100,9 @@ const EXAMPLE_APP: App = {
 
 const EXAMPLE_PENDING_CHANGE: PendingChange = {
   action: EnumPendingChangeAction.Create,
-  resourceType: EnumPendingChangeResourceType.Entity,
-  resourceId: EXAMPLE_RESOURCE_ID,
-  resource: EXAMPLE_ENTITY,
+  originType: EnumPendingChangeOriginType.Entity,
+  originId: EXAMPLE_ORIGIN_ID,
+  origin: EXAMPLE_ENTITY,
   versionNumber: EXAMPLE_VERSION_NUMBER
 };
 
@@ -331,10 +331,10 @@ const PENDING_CHANGE_QUERY = gql`
   query($appId: String!) {
     pendingChanges(where: { app: { id: $appId } }) {
       action
-      resourceType
-      resourceId
+      originType
+      originId
       versionNumber
-      resource {
+      origin {
         ... on Entity {
           id
           createdAt
@@ -741,7 +741,7 @@ describe('AppResolver', () => {
       pendingChanges: [
         {
           ...EXAMPLE_PENDING_CHANGE,
-          resource: {
+          origin: {
             ...EXAMPLE_ENTITY,
             createdAt: EXAMPLE_ENTITY.createdAt.toISOString(),
             updatedAt: EXAMPLE_ENTITY.updatedAt.toISOString()

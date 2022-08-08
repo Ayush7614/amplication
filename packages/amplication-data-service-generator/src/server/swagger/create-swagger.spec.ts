@@ -1,5 +1,5 @@
 import { EnumAuthProviderType } from "../../models";
-import { AppInfo } from "../../types";
+import { AppInfo } from "@amplication/code-gen-types";
 import {
   createDescription,
   getInstructions,
@@ -20,6 +20,15 @@ const EXAMPLE_APP_INFO: AppInfo = {
     dbPassword: "admin",
     dbUser: "admin",
     authProvider: EnumAuthProviderType.Http,
+    serverSettings: {
+      generateGraphQL: false,
+      generateRestApi: false,
+      serverPath: "",
+    },
+    adminUISettings: {
+      generateAdminUI: false,
+      adminUIPath: "",
+    },
   },
 };
 

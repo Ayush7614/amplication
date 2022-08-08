@@ -1,22 +1,23 @@
 import { builders, namedTypes } from "ast-types";
 import { EnumAuthProviderType } from "../../models";
 import { print } from "recast";
-import { AppInfo, Module } from "../../types";
+import { AppInfo, Module } from "@amplication/code-gen-types";
 import {
   interpolate,
   removeTSIgnoreComments,
   removeTSVariableDeclares,
 } from "../../util/ast";
 import { readFile } from "../../util/module";
-import { SRC_DIRECTORY } from "../constants";
-
-const MODULE_PATH = `${SRC_DIRECTORY}/swagger.ts`;
 
 const swaggerTemplatePath = require.resolve("./swagger.template.ts");
 
 export const INSTRUCTIONS_BUFFER = "\n\n";
 
-export async function createSwagger(appInfo: AppInfo): Promise<Module> {
+export async function createSwagger(
+  appInfo: AppInfo,
+  srcDirectory: string
+): Promise<Module> {
+  const MODULE_PATH = `${srcDirectory}/swagger.ts`;
   const { settings } = appInfo;
   const { authProvider } = settings;
   const file = await readFile(swaggerTemplatePath);

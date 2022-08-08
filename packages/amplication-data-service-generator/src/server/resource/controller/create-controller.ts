@@ -2,7 +2,12 @@ import { EnumEntityAction } from "./../../../models";
 import { print } from "recast";
 import { ASTNode, builders, namedTypes } from "ast-types";
 import { camelCase } from "camel-case";
-import { Entity, EntityLookupField, Module, AppInfo } from "../../../types";
+import {
+  Entity,
+  EntityLookupField,
+  Module,
+  AppInfo,
+} from "@amplication/code-gen-types";
 import { readFile, relativeImportPath } from "../../../util/module";
 import {
   interpolate,
@@ -20,7 +25,6 @@ import {
   removeTSIgnoreComments,
 } from "../../../util/ast";
 import { isToManyRelationField } from "../../../util/field";
-import { SRC_DIRECTORY } from "../../constants";
 import { DTOs, getDTONameToPath } from "../create-dtos";
 import { getImportableDTOs } from "../dto/create-dto-module";
 import {
@@ -55,7 +59,8 @@ export async function createControllerModules(
   entityType: string,
   entityServiceModule: string,
   entity: Entity,
-  dtos: DTOs
+  dtos: DTOs,
+  srcDirectory: string
 ): Promise<Module[]> {
   const { settings } = appInfo;
   const { authProvider } = settings;
@@ -118,7 +123,8 @@ export async function createControllerModules(
       mapping,
       controllerBaseId,
       serviceId,
-      false
+      false,
+      srcDirectory
     ),
     await createControllerModule(
       controllerBaseTemplatePath,
@@ -130,7 +136,8 @@ export async function createControllerModules(
       mapping,
       controllerBaseId,
       serviceId,
-      true
+      true,
+      srcDirectory
     ),
   ];
 }
@@ -145,10 +152,11 @@ async function createControllerModule(
   mapping: { [key: string]: ASTNode | undefined },
   controllerBaseId: namedTypes.Identifier,
   serviceId: namedTypes.Identifier,
-  isBaseClass: boolean
+  isBaseClass: boolean,
+  srcDirectory: string
 ): Promise<Module> {
-  const modulePath = `${SRC_DIRECTORY}/${entityName}/${entityName}.controller.ts`;
-  const moduleBasePath = `${SRC_DIRECTORY}/${entityName}/base/${entityName}.controller.base.ts`;
+  const modulePath = `${srcDirectory}/${entityName}/${entityName}.controller.ts`;
+  const moduleBasePath = `${srcDirectory}/${entityName}/base/${entityName}.controller.base.ts`;
   const file = await readFile(templatePath);
 
   const entityDTOs = dtos[entity.name];
@@ -215,7 +223,7 @@ async function createControllerModule(
 
     classDeclaration.body.body.push(...toManyRelationMethods);
 
-    const dtoNameToPath = getDTONameToPath(dtos);
+    const dtoNameToPath = getDTONameToPath(dtos, srcDirectory);
     const dtoImports = importContainedIdentifiers(
       file,
       getImportableDTOs(moduleBasePath, dtoNameToPath)

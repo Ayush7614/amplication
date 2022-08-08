@@ -35,8 +35,8 @@ const OPTIONS = [
 const PendingChangesPage = ({ match }: Props) => {
   const { application } = match.params;
   const [splitView, setSplitView] = useState<boolean>(false);
-
-  useNavigationTabs(application, NAVIGATION_KEY, match.url, "Pending Changes");
+  const pageTitle = "Pending Changes";
+  useNavigationTabs(application, NAVIGATION_KEY, match.url, pageTitle);
 
   const handleChangeType = useCallback(
     (type: string) => {
@@ -54,7 +54,7 @@ const PendingChangesPage = ({ match }: Props) => {
 
   return (
     <>
-      <PageContent className={CLASS_NAME}>
+      <PageContent className={CLASS_NAME} pageTitle={pageTitle}>
         {!data ? (
           "loading..."
         ) : (
@@ -72,7 +72,7 @@ const PendingChangesPage = ({ match }: Props) => {
         <div className={`${CLASS_NAME}__changes`}>
           {data?.pendingChanges.map((change) => (
             <PendingChangeWithCompare
-              key={change.resourceId}
+              key={change.originId}
               change={change}
               compareType={EnumCompareType.Pending}
               splitView={splitView}
@@ -101,11 +101,11 @@ export const GET_COMMIT = gql`
         }
       }
       changes {
-        resourceId
+        originId
         action
-        resourceType
+        originType
         versionNumber
-        resource {
+        origin {
           __typename
           ... on Entity {
             id

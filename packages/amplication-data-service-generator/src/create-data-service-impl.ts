@@ -1,8 +1,5 @@
-import path from "path";
-
 import normalize from "normalize-path";
 import winston from "winston";
-
 import { createDTOs } from "./server/resource/create-dtos";
 import {
   Entity,
@@ -12,18 +9,14 @@ import {
   Module,
   EnumDataType,
   LookupResolvedProperties,
-} from "./types";
+  types,
+} from "@amplication/code-gen-types";
 import { createUserEntityIfNotExist } from "./server/user-entity";
 import { createAdminModules } from "./admin/create-admin";
 import { createServerModules } from "./server/create-server";
-import { createRootModules } from "./create-root-modules";
-import { readStaticModules } from "./read-static-modules";
-import { types } from "@amplication/data";
+
 import pluralize from "pluralize";
 import { camelCase } from "camel-case";
-
-const STATIC_DIRECTORY = path.resolve(__dirname, "static");
-const BASE_DIRECTORY = "";
 
 export async function createDataServiceImpl(
   entities: Entity[],
@@ -52,7 +45,6 @@ export async function createDataServiceImpl(
 
   const modules = (
     await Promise.all([
-      readStaticModules(STATIC_DIRECTORY, BASE_DIRECTORY),
       createServerModules(
         normalizedEntities,
         roles,
@@ -61,8 +53,9 @@ export async function createDataServiceImpl(
         userEntity,
         logger
       ),
-      createAdminModules(normalizedEntities, roles, appInfo, dtos, logger),
-      createRootModules(appInfo, logger),
+      (appInfo.settings.adminUISettings.generateAdminUI &&
+        createAdminModules(normalizedEntities, roles, appInfo, dtos, logger)) ||
+        [],
     ])
   ).flat();
 

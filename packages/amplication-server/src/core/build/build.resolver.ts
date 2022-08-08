@@ -15,16 +15,15 @@ import { FindOneBuildArgs } from './dto/FindOneBuildArgs';
 import { FindManyBuildArgs } from './dto/FindManyBuildArgs';
 import { BuildService } from './build.service';
 import { AuthorizeContext } from 'src/decorators/authorizeContext.decorator';
-import { AuthorizableResourceParameter } from 'src/enums/AuthorizableResourceParameter';
+import { AuthorizableOriginParameter } from 'src/enums/AuthorizableOriginParameter';
 import { InjectContextValue } from 'src/decorators/injectContextValue.decorator';
-import { InjectableResourceParameter } from 'src/enums/InjectableResourceParameter';
-import { User } from 'src/models';
+import { InjectableOriginParameter } from 'src/enums/InjectableOriginParameter';
+import { Commit, User } from 'src/models';
 import { UserService } from '../user/user.service';
-import { Action } from '../action/dto/Action';
-import { Deployment } from '../deployment/dto/Deployment';
+import { Action } from '../action/dto';
 import { ActionService } from '../action/action.service';
 import { EnumBuildStatus } from './dto/EnumBuildStatus';
-import { FindManyDeploymentArgs } from '../deployment/dto/FindManyDeploymentArgs';
+import { CommitService } from '../commit/commit.service';
 
 @Resolver(() => Build)
 @UseFilters(GqlResolverExceptionsFilter)
@@ -33,17 +32,18 @@ export class BuildResolver {
   constructor(
     private readonly service: BuildService,
     private readonly userService: UserService,
-    private readonly actionService: ActionService
+    private readonly actionService: ActionService,
+    private readonly commitService: CommitService
   ) {}
 
   @Query(() => [Build])
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'where.app.id')
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'where.app.id')
   async builds(@Args() args: FindManyBuildArgs): Promise<Build[]> {
     return this.service.findMany(args);
   }
 
   @Query(() => Build)
-  @AuthorizeContext(AuthorizableResourceParameter.BuildId, 'where.id')
+  @AuthorizeContext(AuthorizableOriginParameter.BuildId, 'where.id')
   async build(@Args() args: FindOneBuildArgs): Promise<Build> {
     return this.service.findOne(args);
   }
@@ -59,6 +59,11 @@ export class BuildResolver {
   }
 
   @ResolveField()
+  async commit(@Parent() build: Build): Promise<Commit> {
+    return this.commitService.findOne({ where: { id: build.commitId } });
+  }
+
+  @ResolveField()
   archiveURI(@Parent() build: Build): string {
     return `/generated-apps/${build.id}.zip`;
   }
@@ -68,20 +73,12 @@ export class BuildResolver {
     return this.service.calcBuildStatus(build.id);
   }
 
-  @ResolveField(() => [Deployment])
-  deployments(
-    @Parent() build: Build,
-    @Args() args: FindManyDeploymentArgs
-  ): Promise<Deployment[]> {
-    return this.service.getDeployments(build.id, args);
-  }
-
   @Mutation(() => Build)
   @InjectContextValue(
-    InjectableResourceParameter.UserId,
+    InjectableOriginParameter.UserId,
     'data.createdBy.connect.id'
   )
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'data.app.connect.id')
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'data.app.connect.id')
   async createBuild(@Args() args: CreateBuildArgs): Promise<Build> {
     return this.service.create(args);
   }

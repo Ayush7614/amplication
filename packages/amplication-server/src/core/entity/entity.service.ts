@@ -7,14 +7,11 @@ import {
   ConflictException
 } from '@nestjs/common';
 import { DataConflictError } from 'src/errors/DataConflictError';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaService } from '@amplication/prisma-db';
 import { AmplicationError } from 'src/errors/AmplicationError';
 import { camelCase } from 'camel-case';
-import head from 'lodash.head';
-import last from 'lodash.last';
-import omit from 'lodash.omit';
 import difference from '@extra-set/difference';
-import { isEmpty, pick } from 'lodash';
+import { isEmpty, pick, last, head, omit } from 'lodash';
 import {
   Entity,
   EntityField,
@@ -25,8 +22,7 @@ import {
   EntityPermissionField
 } from 'src/models';
 import { JsonObject } from 'type-fest';
-import { PrismaService } from 'nestjs-prisma';
-import { getSchemaForDataType, types } from '@amplication/data';
+import { getSchemaForDataType, types } from '@amplication/code-gen-types';
 import { JsonSchemaValidationService } from 'src/services/jsonSchemaValidation.service';
 import { DiffService } from 'src/services/diff.service';
 import { SchemaValidationResult } from 'src/dto/schemaValidationResult';
@@ -49,7 +45,7 @@ import {
 } from 'src/util/softDelete';
 
 import {
-  EnumPendingChangeResourceType,
+  EnumPendingChangeOriginType,
   EnumPendingChangeAction,
   PendingChange
 } from '../app/dto';
@@ -108,14 +104,14 @@ export type BulkEntityData = Omit<
 
 export type EntityPendingChange = {
   /** The id of the changed entity */
-  resourceId: string;
+  originId: string;
   /** The type of change */
   action: EnumPendingChangeAction;
-  resourceType: EnumPendingChangeResourceType.Entity;
+  originType: EnumPendingChangeOriginType.Entity;
   /** The entity version number */
   versionNumber: number;
   /** The entity */
-  resource: Entity;
+  origin: Entity;
 };
 
 /**
@@ -499,11 +495,11 @@ export class EntityService {
       }
 
       return {
-        resourceId: entity.id,
+        originId: entity.id,
         action: action,
-        resourceType: EnumPendingChangeResourceType.Entity,
+        originType: EnumPendingChangeOriginType.Entity,
         versionNumber: lastVersion.versionNumber + 1,
-        resource: entity
+        origin: entity
       };
     });
   }
@@ -543,11 +539,11 @@ export class EntityService {
       }
 
       return {
-        resourceId: entity.id,
+        originId: entity.id,
         action: action,
-        resourceType: EnumPendingChangeResourceType.Entity,
+        originType: EnumPendingChangeOriginType.Entity,
         versionNumber: changedVersion.versionNumber,
-        resource: entity
+        origin: entity
       };
     });
   }

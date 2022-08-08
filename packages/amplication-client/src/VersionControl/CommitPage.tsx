@@ -72,7 +72,7 @@ const CommitPage = ({ match }: Props) => {
   const errorMessage = formatError(error);
   return (
     <>
-      <PageContent className={CLASS_NAME}>
+      <PageContent className={CLASS_NAME} pageTitle={`Commit ${truncatedId}`}>
         {!data ? (
           "loading..."
         ) : (
@@ -120,7 +120,7 @@ const CommitPage = ({ match }: Props) => {
             </div>
             {data.commit.changes.map((change) => (
               <PendingChangeWithCompare
-                key={change.resourceId}
+                key={change.originId}
                 change={change}
                 compareType={EnumCompareType.Previous}
                 splitView={splitView}
@@ -150,11 +150,11 @@ export const GET_COMMIT = gql`
         }
       }
       changes {
-        resourceId
+        originId
         action
-        resourceType
+        originType
         versionNumber
-        resource {
+        origin {
           __typename
           ... on Entity {
             id

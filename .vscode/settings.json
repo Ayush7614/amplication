@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "amplicationignore",
     "Amplication",
     "Authorizable",
     "Datagrid",
@@ -32,8 +33,11 @@
     "Formik",
     "IBLOCK",
     "isequalwith",
+    "kafkajs",
     "linkcode",
+    "logform",
     "loglevel",
+    "microservices",
     "nestjs",
     "oclif",
     "Octokit",
@@ -49,6 +53,7 @@
     "schemaname",
     "scrollbar",
     "scrollbars",
+    "SENDGRID",
     "Signup",
     "slynova",
     "tablename",

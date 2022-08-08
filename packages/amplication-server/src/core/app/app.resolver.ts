@@ -12,8 +12,8 @@ import { InjectContextValue } from 'src/decorators/injectContextValue.decorator'
 import { Roles } from 'src/decorators/roles.decorator';
 import { UserEntity } from 'src/decorators/user.decorator';
 import { FindOneArgs } from 'src/dto';
-import { AuthorizableResourceParameter } from 'src/enums/AuthorizableResourceParameter';
-import { InjectableResourceParameter } from 'src/enums/InjectableResourceParameter';
+import { AuthorizableOriginParameter } from 'src/enums/AuthorizableOriginParameter';
+import { InjectableOriginParameter } from 'src/enums/InjectableOriginParameter';
 import { GqlResolverExceptionsFilter } from 'src/filters/GqlResolverExceptions.filter';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { App, Commit, Entity, User, Workspace } from 'src/models';
@@ -26,7 +26,6 @@ import { FindManyEntityArgs } from '../entity/dto';
 import { Environment } from '../environment/dto/Environment';
 import { EnvironmentService } from '../environment/environment.service';
 import {
-  AppValidationResult,
   CreateAppWithEntitiesArgs,
   CreateCommitArgs,
   CreateOneAppArgs,
@@ -50,7 +49,7 @@ export class AppResolver {
 
   @Query(() => App, { nullable: true })
   @Roles('ORGANIZATION_ADMIN')
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'where.id')
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'where.id')
   async app(@Args() args: FindOneArgs): Promise<App | null> {
     return this.appService.app(args);
   }
@@ -61,7 +60,7 @@ export class AppResolver {
   })
   @Roles('ORGANIZATION_ADMIN')
   @InjectContextValue(
-    InjectableResourceParameter.WorkspaceId,
+    InjectableOriginParameter.WorkspaceId,
     'where.workspace.id'
   )
   async apps(@Args() args: FindManyAppArgs): Promise<App[]> {
@@ -100,7 +99,7 @@ export class AppResolver {
   @Mutation(() => App, { nullable: false })
   @Roles('ORGANIZATION_ADMIN')
   @InjectContextValue(
-    InjectableResourceParameter.WorkspaceId,
+    InjectableOriginParameter.WorkspaceId,
     'data.workspace.connect.id'
   )
   async createApp(
@@ -113,7 +112,7 @@ export class AppResolver {
   @Mutation(() => App, { nullable: false })
   @Roles('ORGANIZATION_ADMIN')
   @InjectContextValue(
-    InjectableResourceParameter.WorkspaceId,
+    InjectableOriginParameter.WorkspaceId,
     'data.app.workspace.connect.id'
   )
   async createAppWithEntities(
@@ -127,7 +126,7 @@ export class AppResolver {
     nullable: true,
     description: undefined
   })
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'where.id')
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'where.id')
   async deleteApp(@Args() args: FindOneArgs): Promise<App | null> {
     return this.appService.deleteApp(args);
   }
@@ -136,7 +135,7 @@ export class AppResolver {
     nullable: true,
     description: undefined
   })
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'where.id')
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'where.id')
   async updateApp(@Args() args: UpdateOneAppArgs): Promise<App | null> {
     return this.appService.updateApp(args);
   }
@@ -145,11 +144,8 @@ export class AppResolver {
     nullable: true,
     description: undefined
   })
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'data.app.connect.id')
-  @InjectContextValue(
-    InjectableResourceParameter.UserId,
-    'data.user.connect.id'
-  )
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'data.app.connect.id')
+  @InjectContextValue(InjectableOriginParameter.UserId, 'data.user.connect.id')
   async commit(@Args() args: CreateCommitArgs): Promise<Commit | null> {
     return this.appService.commit(args);
   }
@@ -158,11 +154,8 @@ export class AppResolver {
     nullable: true,
     description: undefined
   })
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'data.app.connect.id')
-  @InjectContextValue(
-    InjectableResourceParameter.UserId,
-    'data.user.connect.id'
-  )
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'data.app.connect.id')
+  @InjectContextValue(InjectableOriginParameter.UserId, 'data.user.connect.id')
   async discardPendingChanges(
     @Args() args: DiscardPendingChangesArgs
   ): Promise<boolean | null> {
@@ -172,22 +165,12 @@ export class AppResolver {
   @Query(() => [PendingChange], {
     nullable: false
   })
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'where.app.id')
+  @AuthorizeContext(AuthorizableOriginParameter.AppId, 'where.app.id')
   async pendingChanges(
     @Args() args: FindPendingChangesArgs,
     @UserEntity() user: User
   ): Promise<PendingChange[]> {
     return this.appService.getPendingChanges(args, user);
-  }
-
-  @Query(() => AppValidationResult, {
-    nullable: false
-  })
-  @AuthorizeContext(AuthorizableResourceParameter.AppId, 'where.id')
-  async appValidateBeforeCommit(
-    @Args() args: FindOneArgs
-  ): Promise<AppValidationResult> {
-    return this.appService.validateBeforeCommit(args);
   }
 
   @ResolveField(() => GitRepository, { nullable: true })

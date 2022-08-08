@@ -73,7 +73,7 @@ const PendingChanges = ({ applicationId }: Props) => {
         <Tooltip aria-label={"Compare Changes"} direction="sw">
           <Link to={`/${applicationId}/pending-changes`}>
             <Button
-              buttonStyle={EnumButtonStyle.Clear}
+              buttonStyle={EnumButtonStyle.Text}
               disabled={loading || noChanges}
               icon="compare"
             />
@@ -81,7 +81,7 @@ const PendingChanges = ({ applicationId }: Props) => {
         </Tooltip>
         <Tooltip aria-label={"Discard Pending Changes"} direction="sw">
           <Button
-            buttonStyle={EnumButtonStyle.Clear}
+            buttonStyle={EnumButtonStyle.Text}
             onClick={handleToggleDiscardDialog}
             disabled={loading || noChanges}
             icon="trash_2"
@@ -116,10 +116,10 @@ const PendingChanges = ({ applicationId }: Props) => {
             <div className={`${CLASS_NAME}__changes`}>
               {data?.pendingChanges.map((change) => (
                 <PendingChange
-                  key={change.resourceId}
+                  key={change.originId}
                   change={change}
                   applicationId={applicationId}
-                  linkToResource
+                  linkToOrigin
                 />
               ))}
             </div>
@@ -136,11 +136,11 @@ export default PendingChanges;
 export const GET_PENDING_CHANGES = gql`
   query pendingChanges($applicationId: String!) {
     pendingChanges(where: { app: { id: $applicationId } }) {
-      resourceId
+      originId
       action
-      resourceType
+      originType
       versionNumber
-      resource {
+      origin {
         __typename
         ... on Entity {
           id

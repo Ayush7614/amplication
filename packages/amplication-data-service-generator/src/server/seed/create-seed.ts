@@ -1,7 +1,12 @@
 import { print } from "recast";
 import { builders, namedTypes } from "ast-types";
-import { types } from "@amplication/data";
-import { Entity, EntityField, EnumDataType, Module } from "../../types";
+import {
+  Entity,
+  EntityField,
+  EnumDataType,
+  Module,
+  types,
+} from "@amplication/code-gen-types";
 import { readFile } from "../../util/module";
 import {
   addImports,
@@ -17,7 +22,6 @@ import {
   USER_PASSWORD_FIELD,
   USER_ROLES_FIELD,
 } from "../user-entity";
-import { SCRIPTS_DIRECTORY } from "../constants";
 import { DTOs, getDTONameToPath } from "../resource/create-dtos";
 import { getImportableDTOs } from "../resource/dto/create-dto-module";
 import { createEnumMemberName } from "../resource/dto/create-enum-dto";
@@ -55,12 +59,14 @@ export const DEFAULT_AUTH_PROPERTIES = [
     builders.arrayExpression([builders.stringLiteral(ADMIN_ROLE)])
   ),
 ];
-const MODULE_PATH = `${SCRIPTS_DIRECTORY}/seed.ts`;
 
 export async function createSeedModule(
   userEntity: Entity,
-  dtos: DTOs
+  dtos: DTOs,
+  scriptsDirectory: string,
+  srcDirectory: string
 ): Promise<Module> {
+  const MODULE_PATH = `${scriptsDirectory}/seed.ts`;
   const file = await readFile(seedTemplatePath);
   const customProperties = createUserObjectCustomProperties(userEntity);
 
@@ -73,7 +79,7 @@ export async function createSeedModule(
 
   removeTSVariableDeclares(file);
 
-  const dtoNameToPath = getDTONameToPath(dtos);
+  const dtoNameToPath = getDTONameToPath(dtos, srcDirectory);
   const dtoImports = importContainedIdentifiers(
     file,
     getImportableDTOs(MODULE_PATH, dtoNameToPath)
